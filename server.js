@@ -275,7 +275,9 @@ const main = async () => {
       "userName" = ?, 
       ${
         isUnregist ? "" : '"registerId" = ?, '
-      }"accessToken" = ?, "refreshToken" = ?, "expiresIn" = ?, "obtainmentTimestamp" = 0`,
+      }"accessToken" = ?, "refreshToken" = ?, "expiresIn" = ?, "obtainmentTimestamp" = 0${
+        isUnregist ? "" : ', "isActive" = ?'
+      }`,
       ...[
         userId,
         userName,
@@ -288,6 +290,7 @@ const main = async () => {
         accessToken,
         refreshToken,
         expiresIn,
+        ...(isUnregist ? [] : [1]),
       ]
     );
 
