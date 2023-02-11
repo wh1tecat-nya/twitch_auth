@@ -1,0 +1,23 @@
+{
+  "name": "twitch_auto_shout",
+  "version": "1.0.0",
+  "main": "server.js",
+  "author": "wh1tecat",
+  "license": "MIT",
+  "private": true,
+  "dependencies": {
+    "@twurple/api": "^5.3.4",
+    "@twurple/auth": "^5.3.4",
+    "@twurple/chat": "^5.3.4",
+    "@twurple/eventsub-http": "^5.3.4",
+    "@twurple/eventsub-ws": "^5.3.4",
+    "@twurple/pubsub": "^5.3.4",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "node-fetch": "^3.3.0",
+    "node-schedule": "^2.1.1",
+    "sqlite": "^4.1.2",
+    "sqlite3": "^5.1.4",
+    "uuid": "^9.0.0"
+  }
+}

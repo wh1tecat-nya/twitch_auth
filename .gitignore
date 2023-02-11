@@ -1,0 +1,26 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# dev
+node_modules/
+.node_repl_history
+.data
+dist
+.env
+
+# caches
+.npm
+.yarn-integrity
+.eslintcache
+.cache/
+
+# userfiles
+.DS_Store
+.idea
+.vscode
+*.code-workspace
+out

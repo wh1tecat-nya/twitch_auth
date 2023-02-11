@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Twitch Auto Shoutout</title>
+    <style>
+      .description {
+        white-space: pre-wrap;
+      }
+    </style>
+  </head>
+  <body>
+    <div>current status:<span id="current_status"></span></div>
+    <div>user:<span id="user_name"></span></div>
+    <a
+      href="https://id.twitch.tv/oauth2/authorize?client_id=amy5xm2qna81y2wc699391xi1unhhu&redirect_uri=https://twitch-auth.wh1te.cat/register&response_type=code&scope=moderator:manage:shoutouts"
+      >Login and setting</a
+    >
+    <a id="unregister" href="/unregister">Disabled setting</a>
+
+    <div class="description">
+      使い方:
+      <span>Login and setting</span>
+      をクリックしてTwitch連携、以降はレイドが来たら自動でShoutoutします。
+      仕組みとしては、登録ユーザーのチャンネルへのraidを監視し、raidがあった場合にそのraid情報を記録。
+      サーバー側で30秒に一度、Shoutout未送信のraidのraid元ユーザーに対してshoutoutを送信します。
+      そのため、raidからShoutoutまで多少のラグがある場合がございます。　ご了承下さい。
+      
+      また、twitch側の仕様でShoutoutは1分間に1回までの制限があるため、制限時間中に連続でraidが来た場合、
+      サーバ側での送信タイミングごとにraidが来た順でshoutoutを行います。
+
+      自動Shoutoutを無効にしたい場合は
+      <span>Disabled setting</span> をクリックしてください。
+      設定時にブラウザに保存した情報が残っている場合はその情報から解除を行いますが、
+      ブラウザの情報がない場合は解除のために再度Twitch連携画面が出る場合があります。
+      自動Shoutout解除時、shoutout未送信のraidがある場合は全て送信済み判定として送信キューから解除するため、ご注意ください。
+
+      本サービスは開発者(sironeko0nya: <a href="https://twitter.com/sironeko0nya">twitter</a> discord: sironeko0nya#0001)の個人サーバーで試験的に稼働させているため、
+      事前の予告無く停止・終了や機能の変更を行う場合がございます。
+      また、不具合やネットワークの問題等で意図せず正常な動作が行われない場合もございます。
+      上記についてご了承出来る方のみ、ご利用ください。
+
+      ソースコードについては後日GitHub等で公開を行う予定です。
+
+      バグ報告・要望等がある場合は、上記Twitterまたはdiscordまでご連絡をお願いします。
+    </div>
+
+    <script>
+      const name = localStorage.getItem("registered_user");
+      const registeredId = localStorage.getItem("registered_id");
+      if (!!name) {
+        document.getElementById("user_name").textContent = name;
+      }
+      if (!!registeredId) {
+        document.getElementById(
+          "unregister"
+        ).href = `/unregister?registered_id=${registeredId}`;
+      }
+
+      const getStatus = async () => {
+        const result = await fetch(`/status?registered_id=${registeredId}`);
+        const resultJson = await result.json();
+        document.getElementById("current_status").textContent = resultJson.status;
+      };
+
+      getStatus();
+    </script>
+  </body>
+</html>
