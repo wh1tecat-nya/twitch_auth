@@ -4,7 +4,6 @@ const {
   exchangeCode,
   RefreshingAuthProvider,
   getTokenInfo,
-  StaticAuthProvider,
   revokeToken,
 } = require("@twurple/auth");
 const { ApiClient } = require("@twurple/api");
@@ -238,7 +237,7 @@ const main = async () => {
       const { id, fromId, fromName, toId, toName, date } = raid;
       const token = tokens.find((token) => token.userId === toId);
 
-      const authProvider = new StaticAuthProvider(CLIENT_ID, token.accessToken);
+      const authProvider = await registAuthProvider(token, token.userName, token.userId);
       const apiClient = new ApiClient({ authProvider });
 
       const isDoneShoutout = await sendShoutout(apiClient, toId, fromId, toId);
