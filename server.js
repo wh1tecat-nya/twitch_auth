@@ -222,22 +222,31 @@ const main = async () => {
   }
 
   schedule.scheduleJob("*/30 * * * * *", async () => {
-    const undoneSendRaids = await db.all(
-      'select * from "main"."raid" where "isDoneShoutout" = false group by "toId" order by date("date") desc'
+    const allUndoneSendRaids = await db.all(
+      'select * from "main"."raid" where "isDoneShoutout" = false order by date("date") desc'
     );
 
-    console.log(`undoneSendRaids:${undoneSendRaids.length}`);
+    console.log(`undoneSendRaids:${allUndoneSendRaids.length}`);
 
-    const raidedCasterIds = undoneSendRaids.map((raid) => raid.toId);
+    const raidedCasterIds = Array.from(
+      new Set(allUndoneSendRaids.map((raid) => raid.toId))
+    );
     const tokens = await db.all(
       `select * from "main"."token" where "userId" in (${raidedCasterIds.join(",")})`
     );
 
-    for (const raid of undoneSendRaids) {
-      const { id, fromId, fromName, toId, toName, date } = raid;
-      const token = tokens.find((token) => token.userId === toId);
+    for (const casterId of raidedCasterIds) {
+      const token = tokens.find((token) => token.userId === casterId);
+      const { userName } = token;
 
-      const authProvider = await registAuthProvider(token, token.userName, token.userId);
+      const undoneSendRaids = allUndoneSendRaids.filter((raid) => raid.toId === casterId);
+      const oldestUndoneSendRaid = undoneSendRaids[0];
+
+      console.log(`${userName}'s undoneSendRaids:${undoneSendRaids.length}`);
+
+      const { id, fromId, fromName, toId, toName, date } = oldestUndoneSendRaid;
+
+      const authProvider = await registAuthProvider(token, userName, casterId);
       const apiClient = new ApiClient({ authProvider });
 
       const isDoneShoutout = await sendShoutout(apiClient, toId, fromId, toId);
