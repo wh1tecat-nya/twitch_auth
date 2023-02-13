@@ -68,7 +68,7 @@ const main = async () => {
 
     console.log(`request user:${userName} id:${userId} register_id:${uuid}`);
 
-    const authProvider = await registAuthProvider(exchangeResult, userId);
+    const authProvider = await registAuthProvider(exchangeResult, userName, userId);
     const apiClient = new ApiClient({ authProvider });
 
     await apiClient.eventSub.deleteAllSubscriptions().catch((e) => console.log(e));
@@ -106,8 +106,8 @@ const main = async () => {
       );
     }
 
-    const { accessToken, userId, isActive } = token;
-    const authProvider = await registAuthProvider(token, userId);
+    const { accessToken, userName, userId, isActive } = token;
+    const authProvider = await registAuthProvider(token, userName, userId);
     const apiClient = new ApiClient({ authProvider });
 
     if (!isActive) {
@@ -150,7 +150,7 @@ const main = async () => {
     }
 
     const { accessToken } = exchangeResult;
-    const { userId } = await getTokenInfo(accessToken, CLIENT_ID);
+    const { userId, userName } = await getTokenInfo(accessToken, CLIENT_ID);
 
     const token = await db.get('select * from "main"."token" where "userId" = ?', userId);
 
@@ -163,7 +163,7 @@ const main = async () => {
 
     await registTokenToDb(exchangeResult, true);
 
-    const authProvider = await registAuthProvider(exchangeResult, userId);
+    const authProvider = await registAuthProvider(exchangeResult, userName, userId);
     const apiClient = new ApiClient({ authProvider });
 
     if (!isActive) {
@@ -213,8 +213,8 @@ const main = async () => {
   );
 
   for (const token of registeredUser) {
-    const { userId } = token;
-    const authProvider = await registAuthProvider(token, userId);
+    const { userName, userId } = token;
+    const authProvider = await registAuthProvider(token, userName, userId);
     const apiClient = new ApiClient({ authProvider });
 
     await apiClient.eventSub.deleteAllSubscriptions().catch((e) => console.log(e));
@@ -261,7 +261,7 @@ const main = async () => {
   });
 
   async function registTokenToDb(exchangeResult, isUnregist) {
-    const { accessToken, expiresIn, refreshToken } = exchangeResult;
+    const { accessToken, expiresIn, refreshToken, obtainmentTimestamp } = exchangeResult;
 
     const { userId, userName } = await getTokenInfo(accessToken, CLIENT_ID);
     const uuid = uuidv4();
@@ -270,12 +270,12 @@ const main = async () => {
       `insert into "main"."token" \
       ("userId", "userName", "registerId", "accessToken", "refreshToken", "expiresIn", "obtainmentTimestamp", "isActive") \
       values \
-      (?, ?, ?, ?, ?, ?, 0, 1) \
+      (?, ?, ?, ?, ?, ?, ?, 1) \
       on conflict("userId") do update set \
       "userName" = ?, 
       ${
         isUnregist ? "" : '"registerId" = ?, '
-      }"accessToken" = ?, "refreshToken" = ?, "expiresIn" = ?, "obtainmentTimestamp" = 0${
+      }"accessToken" = ?, "refreshToken" = ?, "expiresIn" = ?, "obtainmentTimestamp" = ?${
         isUnregist ? "" : ', "isActive" = ?'
       }`,
       ...[
@@ -285,11 +285,13 @@ const main = async () => {
         accessToken,
         refreshToken,
         expiresIn,
+        obtainmentTimestamp,
         userName,
         ...(isUnregist ? [] : [uuid]),
         accessToken,
         refreshToken,
         expiresIn,
+        obtainmentTimestamp,
         ...(isUnregist ? [] : [1]),
       ]
     );
@@ -297,25 +299,26 @@ const main = async () => {
     return { uuid, userId, userName };
   }
 
-  async function registAuthProvider(exchangeResult, userId) {
-    const { expiresIn, refreshToken } = exchangeResult;
+  async function registAuthProvider(exchangeResult, userName, userId) {
+    const { expiresIn, refreshToken, obtainmentTimestamp: timeStamp } = exchangeResult;
 
     const refreshAuthProvider = new RefreshingAuthProvider(
       {
         clientId: CLIENT_ID,
         clientSecret: CLIENT_SECRET,
         onRefresh: (token) => {
-          const { accessToken, refreshToken, expiresIn } = token;
+          console.log(`token refreshed. userName:${userName} userId:${userId}`);
+          const { accessToken, refreshToken, expiresIn, obtainmentTimestamp } = token;
 
           db.run(
             `update "main"."token" set \
-            "accessToken" = ?, "refreshToken" = ?, "expiresIn" = ?, "obtainmentTimestamp" = 0 \
+            "accessToken" = ?, "refreshToken" = ?, "expiresIn" = ?, "obtainmentTimestamp" = ? \
             where "userId" = ?`,
-            ...[accessToken, refreshToken, expiresIn, userId]
+            ...[accessToken, refreshToken, expiresIn, obtainmentTimestamp, userId]
           );
         },
       },
-      { refreshToken, expiresIn, obtainmentTimestamp: 0 }
+      { refreshToken, expiresIn, obtainmentTimestamp: timeStamp }
     );
     return refreshAuthProvider;
   }
