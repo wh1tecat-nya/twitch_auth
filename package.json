@@ -19,5 +19,8 @@
     "sqlite": "^4.1.2",
     "sqlite3": "^5.1.4",
     "uuid": "^9.0.0"
+  },
+  "scripts": {
+    "start": "node server.js"
   }
 }
