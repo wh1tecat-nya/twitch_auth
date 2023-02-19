@@ -1,4 +1,4 @@
-https://twitch-auth.wh1te.cat/
+https://twitch-auto-shout.wh1te.cat/
 
 ## Development
 

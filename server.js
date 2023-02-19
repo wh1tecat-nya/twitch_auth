@@ -53,7 +53,7 @@ const main = async () => {
       CLIENT_ID,
       CLIENT_SECRET,
       code,
-      "https://twitch-auth.wh1te.cat/register"
+      "https://twitch-auto-shout.wh1te.cat/register"
     ).catch((e) => {
       console.log(e);
       return false;
@@ -88,7 +88,7 @@ const main = async () => {
       console.log("registered_id not found");
       return res.redirect(
         301,
-        "https://id.twitch.tv/oauth2/authorize?client_id=amy5xm2qna81y2wc699391xi1unhhu&redirect_uri=https://twitch-auth.wh1te.cat/unregisterWithLogin&response_type=code"
+        "https://id.twitch.tv/oauth2/authorize?client_id=amy5xm2qna81y2wc699391xi1unhhu&redirect_uri=https://twitch-auto-shout.wh1te.cat/unregisterWithLogin&response_type=code"
       );
     }
 
@@ -101,7 +101,7 @@ const main = async () => {
       console.log("token not found");
       return res.redirect(
         301,
-        "https://id.twitch.tv/oauth2/authorize?client_id=amy5xm2qna81y2wc699391xi1unhhu&redirect_uri=https://twitch-auth.wh1te.cat/unregisterWithLogin&response_type=code"
+        "https://id.twitch.tv/oauth2/authorize?client_id=amy5xm2qna81y2wc699391xi1unhhu&redirect_uri=https://twitch-auto-shout.wh1te.cat/unregisterWithLogin&response_type=code"
       );
     }
 
@@ -138,7 +138,7 @@ const main = async () => {
       CLIENT_ID,
       CLIENT_SECRET,
       code,
-      "https://twitch-auth.wh1te.cat/register"
+      "https://twitch-auto-shout.wh1te.cat/register"
     ).catch((e) => {
       console.log(e);
       return false;
