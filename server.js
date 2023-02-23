@@ -89,7 +89,7 @@ const main = async () => {
       console.log("registered_id not found");
       return res.redirect(
         301,
-        `https://id.twitch.tv/oauth2/authorize?client_id=${CILENT_ID}&redirect_uri=${baseUrl}/unregisterWithLogin&response_type=code`
+        `https://id.twitch.tv/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${baseUrl}/unregisterWithLogin&response_type=code`
       );
     }
 
