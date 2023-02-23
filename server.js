@@ -20,6 +20,7 @@ const CLIENT_SECRET = process.env.CLIENT_SECRET ?? "";
 
 const app = express();
 const port = 8080;
+const baseUrl = process.env.PRODUCTION_URL ?? `http://localhost:${port}`;
 
 const main = async () => {
   const db = await sqlite.open({
@@ -53,7 +54,7 @@ const main = async () => {
       CLIENT_ID,
       CLIENT_SECRET,
       code,
-      "https://twitch-auto-shout.wh1te.cat/register"
+      `${baseUrl}/register`
     ).catch((e) => {
       console.log(e);
       return false;
@@ -88,7 +89,7 @@ const main = async () => {
       console.log("registered_id not found");
       return res.redirect(
         301,
-        "https://id.twitch.tv/oauth2/authorize?client_id=amy5xm2qna81y2wc699391xi1unhhu&redirect_uri=https://twitch-auto-shout.wh1te.cat/unregisterWithLogin&response_type=code"
+        `https://id.twitch.tv/oauth2/authorize?client_id=${CILENT_ID}&redirect_uri=${baseUrl}/unregisterWithLogin&response_type=code`
       );
     }
 
@@ -101,7 +102,7 @@ const main = async () => {
       console.log("token not found");
       return res.redirect(
         301,
-        "https://id.twitch.tv/oauth2/authorize?client_id=amy5xm2qna81y2wc699391xi1unhhu&redirect_uri=https://twitch-auto-shout.wh1te.cat/unregisterWithLogin&response_type=code"
+        `https://id.twitch.tv/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${baseUrl}/unregisterWithLogin&response_type=code`
       );
     }
 
@@ -138,7 +139,7 @@ const main = async () => {
       CLIENT_ID,
       CLIENT_SECRET,
       code,
-      "https://twitch-auto-shout.wh1te.cat/register"
+      `${baseUrl}/register`
     ).catch((e) => {
       console.log(e);
       return false;
@@ -280,7 +281,7 @@ const main = async () => {
       values \
       (?, ?, ?, ?, ?, ?, ?, 1) \
       on conflict("userId") do update set \
-      "userName" = ?, 
+      "userName" = ?,
       ${
         isUnregist ? "" : '"registerId" = ?, '
       }"accessToken" = ?, "refreshToken" = ?, "expiresIn" = ?, "obtainmentTimestamp" = ?${
